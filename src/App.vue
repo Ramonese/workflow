@@ -1,25 +1,30 @@
 <template>
   <div id="app">
-    <HelloWorld msg="Welcome to Your Vue.js App" />
-    <section class="form__step">
-      <p class="step__text">Start checkout process</p>
-      <button class="btn" @click="start">Start</button>
-    </section>
-    <form></form>
+    <div v-show="isIntroVisible">
+      <section class="form__step">
+        <p class="step__text">Start checkout process</p>
+        <button class="btn" @click="start">Start</button>
+      </section>
+    </div>
+    <template v-if="isVisible">
+      <MultistepForm />
+    </template>
   </div>
 </template>
 
 <script>
-import HelloWorld from "./components/HelloWorld.vue";
+import MultistepForm from "./components/MultistepForm.vue";
 
 export default {
   name: "app",
   components: {
-    HelloWorld
+    MultistepForm
   },
   data: function() {
     return {
       users: [],
+      isVisible: false,
+      isIntroVisible: true,
       loading: true,
       isError: false,
       errorText: "No user found with this phone number"
@@ -27,8 +32,7 @@ export default {
   },
   methods: {
     start() {
-      console.log("test");
-      alert("test");
+      (this.isIntroVisible = false), (this.isVisible = true);
     }
   }
 };
