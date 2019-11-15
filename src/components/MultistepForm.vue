@@ -3,14 +3,7 @@
     <h1>Step 1</h1>
     <form>
       <section class="form__content" id="step-1">
-        <div class="form__field">
-          <label for="name">Name</label>
-          <input type="text" id="name" />
-        </div>
-        <div class="form__field">
-          <label>Last name</label>
-          <input type="text" />
-        </div>
+        <FormStep :fields="firstStepFields" />
       </section>
       <div class="form__action">
         <button class="btn">Back</button>
@@ -21,18 +14,19 @@
 </template>
 
 <script>
+import FormStep from "./FormStep.vue";
 export default {
-  name: "MultistepForm",
+  name: " MultistepForm ",
+  components: {
+    FormStep
+  },
   props: {
     msg: String
   },
   data: function() {
     return {
-      isDisabled: true
-      // users: [],
-      // loading: true,
-      // isError: false,
-      // errorText: "No user found with this phone number"
+      isDisabled: true,
+      firstStepFields: ["First name", "Last name"]
     };
   }
 };

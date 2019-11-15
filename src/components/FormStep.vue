@@ -1,30 +1,27 @@
 <template>
   <section class="form__content" id="step-1">
-    <div class="form__field">
+    <div class="form__field" v-for="(field, index) in fields" :key="index">
+      <label :for="field">{{field}}</label>
+      <input type="text" :id="field" />
+    </div>
+
+    <!-- <div class="form__field">
       <label for="name">Name</label>
       <input type="text" id="name" />
     </div>
     <div class="form__field">
       <label>Last name</label>
       <input type="text" />
-    </div>
+    </div>-->
   </section>
 </template>
 
 <script>
 export default {
   name: "FormStep",
-  props: {
-    msg: String
-  },
+  props: ["fields"],
   data: function() {
-    return {
-      isDisabled: true
-      // users: [],
-      // loading: true,
-      // isError: false,
-      // errorText: "No user found with this phone number"
-    };
+    return {};
   }
 };
 </script>

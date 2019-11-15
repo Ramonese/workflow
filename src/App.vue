@@ -23,7 +23,7 @@ export default {
   data: function() {
     return {
       users: [],
-      isVisible: false,
+      isVisible: true,
       isIntroVisible: true,
       loading: true,
       isError: false,
