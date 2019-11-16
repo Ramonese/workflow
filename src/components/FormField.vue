@@ -9,11 +9,33 @@
 </template>
 
 <script>
+const formFields = [
+  [
+    { label: "First name", id: "firstName", type: "text", required: true },
+    { label: "Last name", id: "lastName", type: "text", required: true },
+    {
+      label: "Github username",
+      id: "username",
+      type: "text",
+      required: true
+    }
+  ],
+  [
+    {
+      label: "Agree with terms and services",
+      id: "consent",
+      type: "checkbox",
+      required: true
+    },
+    { label: "Email", id: "email", type: "email", required: true }
+  ]
+];
 export default {
   name: "FormField",
   props: ["field"],
   data: function() {
     return {
+      formFields: formFields,
       input: "",
       isValid: true
     };

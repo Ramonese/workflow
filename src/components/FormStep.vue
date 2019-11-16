@@ -46,17 +46,4 @@ li {
 a {
   color: #42b983;
 }
-.form-field {
-  margin-bottom: 1em;
-}
-.form-field label {
-  display: block;
-}
-.form-field input {
-  display: inline-block;
-}
-.form-field__error {
-  display: none;
-  color: red;
-}
 </style>

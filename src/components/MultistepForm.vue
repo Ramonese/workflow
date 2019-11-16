@@ -1,16 +1,41 @@
 <template>
   <section>
-    <h1>Step 1</h1>
-    <form @submit.prevent>
-      <section class="form__content" :id="currentStep" :firstComplete="firstComplete">
-        <div v-for="(fields, index) in formFields" :key="index">
-          <FormStep :fields="fields" @onChange="test" />
-        </div>
+    <h1>Step {{currentStep}} from {{allSteps}}</h1>
+    <form @submit.prevent="onSubmit">
+      <section class="form__content" :id="currentStep">
+        <transition name="slide">
+          <fieldset v-if="currentStep == 1">
+            <div class="form-field">
+              <label for="firstName">First Name</label>
+              <input type="input" id="firstName" v-model="formData.firstName" />
+              <span class="form-field__error">error text</span>
+            </div>
+            <div class="form-field">
+              <label for="lastName">Last Name</label>
+              <input type="input" id="lastName" v-model="formData.lastName" />
+              <span class="form-field__error">error text</span>
+            </div>
+            <div class="form-field">
+              <label for="username">Github username</label>
+              <input type="input" id="username" v-model="formData.username" />
+              <span class="form-field__error">error text</span>
+            </div>
+          </fieldset>
+        </transition>
+        <fieldset v-if="currentStep == 2">
+          <div class="form-field">
+            <label for="email">Email</label>
+            <input type="input" id="email" v-model="formData.email" />
+            <span class="form-field__error">error text</span>
+          </div>
+          <div class="form-field">
+            <label for="consent">Agree with terms and services</label>
+            <input type="checkbox" id="consent" v-model="formData.consent" />
+            <span class="form-field__error">error text</span>
+          </div>
+        </fieldset>
       </section>
-      <!-- <section class="form__content" id="step-2" :secondComplete="secondComplete">
-        <FormStep :fields="secondStepFields" @onChange="test" />
-      </section>-->
-
+      {{formData}}
       <div class="form__action">
         <button class="btn" data-cy="btn-back" @click="previousStep">Back</button>
         <button class="btn" @click="nextStep" :disabled="isDisabled" data-cy="btn-next">Next</button>
@@ -20,40 +45,25 @@
 </template>
 
 <script>
-import FormStep from "./FormStep.vue";
-const formFields = [
-  [
-    { label: "First name", id: "firstName", type: "text", required: true },
-    { label: "Last name", id: "lastName", type: "text", required: true },
-    {
-      label: "Github username",
-      id: "username",
-      type: "text",
-      required: true
-    }
-  ],
-  [
-    {
-      label: "Agree with terms and services",
-      id: "consent",
-      type: "checkbox",
-      required: true
-    },
-    { label: "Email", id: "email", type: "email", required: true }
-  ]
-];
+//import FormStep from "./FormStep.vue";
+
 export default {
   name: "MultistepForm",
   components: {
-    FormStep
+    //FormStep
   },
   props: {
     msg: String
   },
   data: function() {
     return {
-      formFields: formFields,
-      input: "",
+      formData: {
+        firstName: "",
+        lastName: "",
+        username: "",
+        consent: false
+      },
+      isValid: false,
       currentStep: 1,
       allSteps: 2,
       isDisabled: false,
@@ -66,12 +76,17 @@ export default {
       this.currentStep = this.currentStep - 1;
     },
     nextStep() {
-      this.currentStep = this.currentStep + 1;
+      if (this.currentStep < this.allSteps) {
+        this.currentStep = this.currentStep + 1;
+      }
       //alert(this.currentStep);
     },
     test(input) {
       this.firstComplete = true;
       console.log(input);
+    },
+    onSubmit() {
+      this.isValid = true;
     }
   }
 };
@@ -96,5 +111,36 @@ a {
   border: 1px solid magenta;
   padding: 3em;
   margin: 2em;
+}
+.form-field {
+  margin-bottom: 1em;
+}
+.form-field label {
+  display: block;
+}
+.form-field input {
+  display: inline-block;
+}
+.form-field__error {
+  display: none;
+  color: red;
+}
+/*Slide down result*/
+.slide-enter-active {
+  transition: all cubic-bezier(0, 1, 0.5, 1) 0.3s;
+}
+
+.slide-leave-active {
+  transition: all cubic-bezier(0, 1, 0.5, 1) 0.3s;
+}
+
+.slide-enter-to,
+.slide-leave {
+  transform: translateX(100%);
+}
+
+.slide-enter,
+.slide-leave-to {
+  transform: translateX(0);
 }
 </style>
