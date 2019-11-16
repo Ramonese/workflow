@@ -2,12 +2,14 @@
   <section>
     <h1>Step 1</h1>
     <form @submit.prevent>
-      <section class="form__content" id="step-1" :firstComplete="firstComplete">
-        <FormStep :fields="firstStepFields" @onChange="test" />
+      <section class="form__content" :id="currentStep" :firstComplete="firstComplete">
+        <div v-for="(fields, index) in formFields" :key="index">
+          <FormStep :fields="fields" @onChange="test" />
+        </div>
       </section>
-      <section class="form__content" id="step-2" :secondComplete="secondComplete">
+      <!-- <section class="form__content" id="step-2" :secondComplete="secondComplete">
         <FormStep :fields="secondStepFields" @onChange="test" />
-      </section>
+      </section>-->
 
       <div class="form__action">
         <button class="btn" data-cy="btn-back" @click="previousStep">Back</button>
@@ -19,6 +21,27 @@
 
 <script>
 import FormStep from "./FormStep.vue";
+const formFields = [
+  [
+    { label: "First name", id: "firstName", type: "text", required: true },
+    { label: "Last name", id: "lastName", type: "text", required: true },
+    {
+      label: "Github username",
+      id: "username",
+      type: "text",
+      required: true
+    }
+  ],
+  [
+    {
+      label: "Agree with terms and services",
+      id: "consent",
+      type: "checkbox",
+      required: true
+    },
+    { label: "Email", id: "email", type: "email", required: true }
+  ]
+];
 export default {
   name: "MultistepForm",
   components: {
@@ -29,34 +52,19 @@ export default {
   },
   data: function() {
     return {
+      formFields: formFields,
+      input: "",
       currentStep: 1,
       allSteps: 2,
       isDisabled: false,
       firstComplete: false,
-      secondComplete: false,
-      firstStepFields: [
-        { label: "First name", id: "firstName", type: "text", required: true },
-        { label: "Last name", id: "lastName", type: "text", required: true },
-        {
-          label: "Github username",
-          id: "username",
-          type: "text",
-          required: true
-        }
-      ],
-      secondStepFields: [
-        {
-          label: "Agree with terms and services",
-          id: "consent",
-          type: "checkbox",
-          required: true
-        },
-        { label: "Email", id: "email", type: "email", required: true }
-      ]
+      secondComplete: false
     };
   },
   methods: {
-    previousStep() {},
+    previousStep() {
+      this.currentStep = this.currentStep - 1;
+    },
     nextStep() {
       this.currentStep = this.currentStep + 1;
       //alert(this.currentStep);

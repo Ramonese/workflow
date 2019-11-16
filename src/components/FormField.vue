@@ -1,31 +1,28 @@
 <template>
   <section>
-    <h1>Step name</h1>
-    <div class="form-field" v-for="(field, index) in fields" :key="index">
-      <FormField :field="field" @onChange="saveInput" />
+    <div class="form-field">
+      <label :for="field.id">{{field.label}}</label>
+      <input :type="field.type" :id="field.id" @change="onInput" v-model="input" />
+      <span class="form-field__error">error text</span>
     </div>
   </section>
 </template>
 
 <script>
-import FormField from "./FormField.vue";
 export default {
-  name: "FormStep",
-  props: ["fields"],
-  components: {
-    FormField
-  },
+  name: "FormField",
+  props: ["field"],
   data: function() {
     return {
-      formData: []
+      input: "",
+      isValid: true
     };
   },
   methods: {
-    saveInput(input) {
-      this.formData.push(input);
-    },
-    onInput($event) {
-      this.$emit("onChange", $event.target.value);
+    onInput() {
+      if (this.isValid) {
+        this.$emit("onChange", this.input);
+      }
     }
   }
 };
