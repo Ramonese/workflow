@@ -1,18 +1,10 @@
 <template>
-  <section class="form__content" id="step-1">
-    <div class="form__field" v-for="(field, index) in fields" :key="index">
-      <label :for="field">{{field}}</label>
-      <input type="text" :id="field" />
+  <section>
+    <div class="form-field" v-for="(field, index) in fields" :key="index">
+      <label :for="field.id">{{field.label}}</label>
+      <input :type="field.type" :id="field.id" @change="onInput" />
+			<span class="form-field__error">error text</span>
     </div>
-
-    <!-- <div class="form__field">
-      <label for="name">Name</label>
-      <input type="text" id="name" />
-    </div>
-    <div class="form__field">
-      <label>Last name</label>
-      <input type="text" />
-    </div>-->
   </section>
 </template>
 
@@ -22,11 +14,15 @@ export default {
   props: ["fields"],
   data: function() {
     return {};
+  },
+  methods: {
+    onInput($event) {
+      this.$emit("onChange", $event.target.value);
+    }
   }
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 h3 {
   margin: 40px 0 0;
@@ -41,5 +37,18 @@ li {
 }
 a {
   color: #42b983;
+}
+.form-field {
+  margin-bottom: 1em;
+}
+.form-field label {
+  display: block;
+}
+.form-field input {
+  display: inline-block;
+}
+.form-field__error {
+	display: none;
+	color: red;
 }
 </style>
