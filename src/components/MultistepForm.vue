@@ -1,18 +1,17 @@
 <template>
   <section>
     <h1>Step 1</h1>
-    <form>
-      <section class="form__content" id="step-1">
+    <form @submit.prevent>
+      <section class="form__content" id="step-1" :firstComplete="firstComplete">
         <FormStep :fields="firstStepFields" @onChange="test" />
       </section>
-      <section class="form__content" id="step-2">
+      <section class="form__content" id="step-2" :secondComplete="secondComplete">
         <FormStep :fields="secondStepFields" @onChange="test" />
       </section>
+
       <div class="form__action">
-        <button class="btn">Back</button>
-        <button class="btn" :disabled="isDisabled" data-cy="btn-next">
-          Next
-        </button>
+        <button class="btn" data-cy="btn-back" @click="previousStep">Back</button>
+        <button class="btn" @click="nextStep" :disabled="isDisabled" data-cy="btn-next">Next</button>
       </div>
     </form>
   </section>
@@ -21,7 +20,7 @@
 <script>
 import FormStep from "./FormStep.vue";
 export default {
-  name: " MultistepForm ",
+  name: "MultistepForm",
   components: {
     FormStep
   },
@@ -30,7 +29,11 @@ export default {
   },
   data: function() {
     return {
-      isDisabled: true,
+      currentStep: 1,
+      allSteps: 2,
+      isDisabled: false,
+      firstComplete: false,
+      secondComplete: false,
       firstStepFields: [
         { label: "First name", id: "firstName", type: "text", required: true },
         { label: "Last name", id: "lastName", type: "text", required: true },
@@ -53,7 +56,13 @@ export default {
     };
   },
   methods: {
+    previousStep() {},
+    nextStep() {
+      this.currentStep = this.currentStep + 1;
+      //alert(this.currentStep);
+    },
     test(input) {
+      this.firstComplete = true;
       console.log(input);
     }
   }
