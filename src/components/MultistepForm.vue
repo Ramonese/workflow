@@ -1,6 +1,6 @@
 <template>
   <section>
-    <h1>Step {{currentStep}} from {{allSteps}}</h1>
+    <h1>Step {{ currentStep }} from {{ allSteps }}</h1>
     <form @submit.prevent="onSubmit">
       <section class="form__content" :id="currentStep">
         <transition name="slide">
@@ -35,18 +35,34 @@
           </div>
         </fieldset>
       </section>
-      {{formData}}
+      {{ formData }}
       <div class="form__action">
-        <button class="btn" data-cy="btn-back" @click="previousStep">Back</button>
-        <button class="btn" @click="nextStep" :disabled="isDisabled" data-cy="btn-next">Next</button>
+        <button class="btn" data-cy="btn-back" @click="previousStep">
+          Back
+        </button>
+        <button
+          class="btn"
+          @click="nextStep"
+          :disabled="isDisabled"
+          data-cy="btn-next"
+        >
+          Next
+        </button>
       </div>
     </form>
+    <aside class="user-profile">
+      <ul v-for="data in formData" :key="data + 1">
+        <li>{{ data }}</li>
+      </ul>
+      <img :src="this.user.avatar_url" />
+    </aside>
   </section>
 </template>
 
 <script>
 //import FormStep from "./FormStep.vue";
-
+import axios from "axios";
+const getUsersUrl = "https://api.github.com/users/ramonese";
 export default {
   name: "MultistepForm",
   components: {
@@ -63,6 +79,7 @@ export default {
         username: "",
         consent: false
       },
+      user: "",
       isValid: false,
       currentStep: 1,
       allSteps: 2,
@@ -72,12 +89,32 @@ export default {
     };
   },
   methods: {
+    async getUsers() {
+      try {
+        const response = await axios.get(getUsersUrl);
+        if (response.status === 200) {
+          this.user = response.data;
+          //this.loading = false;
+        }
+      } catch (error) {
+        // this.errorText = 'No user found'
+        // this.isError = true;
+        // this.loading = false;
+      }
+    },
     previousStep() {
       this.currentStep = this.currentStep - 1;
     },
     nextStep() {
       if (this.currentStep < this.allSteps) {
         this.currentStep = this.currentStep + 1;
+        // if (window.history.pushState) {
+        //   window.history.pushState(
+        //     "object or string",
+        //     "Page Title",
+        //     "/" + this.currentStep
+        //   );
+        // }
       }
       //alert(this.currentStep);
     },
@@ -85,9 +122,13 @@ export default {
       this.firstComplete = true;
       console.log(input);
     },
+    //Send request to github
     onSubmit() {
       this.isValid = true;
     }
+  },
+  mounted() {
+    this.getUsers();
   }
 };
 </script>
