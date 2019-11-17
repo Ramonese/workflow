@@ -1,8 +1,13 @@
 <template>
   <section>
     <div class="form-field">
-      <label :for="field.id">{{field.label}}</label>
-      <input :type="field.type" :id="field.id" @change="onInput" v-model="input" />
+      <label :for="field.id">{{ field.label }}</label>
+      <input
+        :type="field.type"
+        :id="field.id"
+        @change="onInput"
+        v-model="input"
+      />
       <span class="form-field__error">error text</span>
     </div>
   </section>
@@ -11,13 +16,26 @@
 <script>
 const formFields = [
   [
-    { label: "First name", id: "firstName", type: "text", required: true },
-    { label: "Last name", id: "lastName", type: "text", required: true },
+    {
+      label: "First name",
+      id: "firstName",
+      type: "text",
+      validation: "required",
+      value: ""
+    },
+    {
+      label: "Last name",
+      id: "lastName",
+      type: "text",
+      validation: "required",
+      value: ""
+    },
     {
       label: "Github username",
       id: "username",
       type: "text",
-      required: true
+      validation: "required",
+      value: ""
     }
   ],
   [
@@ -25,9 +43,16 @@ const formFields = [
       label: "Agree with terms and services",
       id: "consent",
       type: "checkbox",
-      required: true
+      validation: "required",
+      value: ""
     },
-    { label: "Email", id: "email", type: "email", required: true }
+    {
+      label: "Email",
+      id: "email",
+      type: "email",
+      validation: "required | email",
+      value: ""
+    }
   ]
 ];
 export default {

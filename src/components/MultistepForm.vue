@@ -1,47 +1,31 @@
 <template>
   <section>
-    <h1>Step {{ currentStep }} from {{ allSteps }}</h1>
-    <form @submit.prevent="onSubmit">
-      <section class="form__content" :id="currentStep">
-        <transition name="slide">
-          <fieldset class="form__step" v-if="currentStep == 1">
-            <div class="form-field">
-              <ValidationProvider rules="required" v-slot="{ errors }">
-                <input
-                  type="text"
-                  id="firstName"
-                  required
-                  v-model="formData.firstName"
-                />
-                <label for="firstName">First name</label>
-                <span>{{ errors[0] }}</span>
-              </ValidationProvider>
-            </div>
-            <div class="form-field">
-              <ValidationProvider rules="required" v-slot="{ errors }">
-                <input
-                  type="text"
-                  id="lastName"
-                  required
-                  v-model="formData.lastName"
-                />
-                <label for="lastName">Last name</label>
-                <span class="form-field__error">{{ errors[0] }}</span>
-              </ValidationProvider>
-            </div>
-            <div class="form-field">
-              <ValidationProvider rules="required" v-slot="{ errors }">
-                <input
-                  type="text"
-                  id="username"
-                  required
-                  v-model="formData.username"
-                />
-                <label for="username">Github username</label>
-                <span class="form-field__error">{{ errors[0] }}</span>
-              </ValidationProvider>
-            </div>
-          </fieldset>
+    <ValidationObserver v-slot="{ invalid, passes }" slim>
+      <h1>Step {{ currentStep }} from {{ allSteps }}</h1>
+      <form @submit.prevent="passes(nextStep)">
+        <ValidationProvider
+          v-for="field in activeStep"
+          :key="field.label"
+          :name="field.id"
+          :rules="field.validation"
+          v-slot="{ errors }"
+          persist
+          slim
+        >
+          <div class="form-field">
+            <input v-model="field.value" :type="field.type" :id="field.id" />
+            <label :for="field.id">{{ field.label }}</label>
+            <ul>
+              <li v-for="error in errors" :key="error">
+                <span class="form-field__error">{{ error }}</span>
+              </li>
+            </ul>
+          </div>
+        </ValidationProvider>
+
+        <section class="form__content" :id="currentStep">
+          <!-- <transition name="slide">
+         
         </transition>
         <fieldset class="form__step" v-if="currentStep == 2">
           <div class="form-field">
@@ -72,40 +56,49 @@
               <span class="form-field__error">{{ errors[0] }}</span>
             </ValidationProvider>
           </div>
-        </fieldset>
-      </section>
-      <p>{{ formData }}</p>
-      <div class="form__action">
-        <button class="btn" data-cy="btn-back" @click="previousStep">
-          Back
-        </button>
-        <button
-          class="btn"
-          @click="nextStep"
-          :disabled="isDisabled"
-          data-cy="btn-next"
-        >
-          Next
-        </button>
-      </div>
-    </form>
-    <button @click="getUserGithub">get github</button>
+          </fieldset>-->
+        </section>
+
+        <div class="form__action">
+          <button class="btn" data-cy="btn-back" @click.prevent="previousStep">Back</button>
+          <button
+            class="btn"
+            @click="nextStep"
+            :disabled="invalid"
+            data-cy="btn-next"
+          >{{ isLastStep ? "Submit" : "Next" }}</button>
+        </div>
+      </form>
+    </ValidationObserver>
+    <!-- <button @click="getUserGithub">get github</button> -->
+    <code>this is all data: {{ formSteps }} This is current data: {{ activeStep }}</code>
+    <p v-for="field in formSteps" :key="field.label">
+      {{ field.label }}
+      {{ field.value }}
+    </p>
+    <p v-for="field in activeStep" :key="field.label">
+      {{ field.label }}
+      {{ field.value }}
+    </p>
   </section>
 </template>
 
 <script>
-import { ValidationProvider, extend } from "vee-validate";
-//import { extend } from "vee-validate";
-import { required } from "vee-validate/dist/rules";
+import { ValidationProvider, ValidationObserver, extend } from "vee-validate";
+import { required, email } from "vee-validate/dist/rules";
 import axios from "axios";
 const getUsersUrl = "https://api.github.com/users/";
 extend("required", {
   ...required,
   message: "This field is required"
 });
+extend("email", {
+  ...email,
+  message: "Email should be valid"
+});
 export default {
   name: "MultistepForm",
-  components: { ValidationProvider },
+  components: { ValidationProvider, ValidationObserver },
   props: {
     msg: String
   },
@@ -120,12 +113,56 @@ export default {
         githubAvatar: ""
       },
       user: "",
+      isVisible: true,
+      close: false,
       isValid: false,
       currentStep: 1,
       allSteps: 2,
       isDisabled: false,
       firstComplete: false,
-      secondComplete: false
+      secondComplete: false,
+
+      formSteps: [
+        [
+          {
+            label: "First name",
+            id: "firstName",
+            type: "text",
+            validation: "required",
+            value: ""
+          },
+          {
+            label: "Last name",
+            id: "lastName",
+            type: "text",
+            validation: "required",
+            value: ""
+          },
+          {
+            label: "Github username",
+            id: "username",
+            type: "text",
+            validation: "required",
+            value: ""
+          }
+        ],
+        [
+          {
+            label: "Agree with terms and services",
+            id: "consent",
+            type: "checkbox",
+            validation: "required",
+            value: ""
+          },
+          {
+            label: "Email",
+            id: "email",
+            type: "email",
+            validation: "required|email",
+            value: ""
+          }
+        ]
+      ]
     };
   },
   methods: {
@@ -144,23 +181,19 @@ export default {
     },
     previousStep() {
       this.currentStep = this.currentStep - 1;
+      if (this.currentStep < 1) {
+        this.close = true;
+        return;
+      }
+      console.log(this.currentStep);
     },
     nextStep() {
-      if (this.currentStep < this.allSteps) {
-        this.currentStep = this.currentStep + 1;
-        // if (window.history.pushState) {
-        //   window.history.pushState(
-        //     "object or string",
-        //     "Page Title",
-        //     "/" + this.currentStep
-        //   );
-        // }
-      }
-      if (this.currentStep == this.allSteps) {
+      if (this.isLastStep) {
         this.$emit("getUserData", this.formData);
+        return this.onSubmit();
       }
-
-      //alert(this.currentStep);
+      //console.log(this.formData);
+      this.currentStep = this.currentStep + 1;
     },
     test(input) {
       this.firstComplete = true;
@@ -168,10 +201,16 @@ export default {
     },
     onSubmit() {
       this.isValid = true;
+      this.close = true;
     }
   },
-  created() {
-    // this.getUsers();
+  computed: {
+    activeStep() {
+      return this.formSteps[this.currentStep - 1];
+    },
+    isLastStep() {
+      return this.currentStep === this.formSteps.length;
+    }
   },
   mounted() {
     console.log(document.querySelectorAll(".form__step").length);
@@ -209,7 +248,6 @@ a {
   display: inline-block;
 }
 .form-field__error {
-  display: none;
   color: red;
 }
 /*Slide down result*/
