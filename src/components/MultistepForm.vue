@@ -6,32 +6,71 @@
         <transition name="slide">
           <fieldset class="form__step" v-if="currentStep == 1">
             <div class="form-field">
-              <label for="firstName">First Name</label>
-              <input type="input" id="firstName" v-model="formData.firstName" />
-              <span class="form-field__error">error text</span>
+              <ValidationProvider rules="required" v-slot="{ errors }">
+                <input
+                  type="text"
+                  id="firstName"
+                  required
+                  v-model="formData.firstName"
+                />
+                <label for="firstName">First name</label>
+                <span>{{ errors[0] }}</span>
+              </ValidationProvider>
             </div>
             <div class="form-field">
-              <label for="lastName">Last Name</label>
-              <input type="input" id="lastName" v-model="formData.lastName" />
-              <span class="form-field__error">error text</span>
+              <ValidationProvider rules="required" v-slot="{ errors }">
+                <input
+                  type="text"
+                  id="lastName"
+                  required
+                  v-model="formData.lastName"
+                />
+                <label for="lastName">Last name</label>
+                <span class="form-field__error">{{ errors[0] }}</span>
+              </ValidationProvider>
             </div>
             <div class="form-field">
-              <label for="username">Github username</label>
-              <input type="input" id="username" v-model="formData.username" />
-              <span class="form-field__error">error text</span>
+              <ValidationProvider rules="required" v-slot="{ errors }">
+                <input
+                  type="text"
+                  id="username"
+                  required
+                  v-model="formData.username"
+                />
+                <label for="username">Github username</label>
+                <span class="form-field__error">{{ errors[0] }}</span>
+              </ValidationProvider>
             </div>
           </fieldset>
         </transition>
         <fieldset class="form__step" v-if="currentStep == 2">
           <div class="form-field">
-            <label for="email">Email</label>
-            <input type="input" id="email" v-model="formData.email" />
-            <span class="form-field__error">error text</span>
+            <ValidationProvider rules="required|email" v-slot="{ errors }">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                required
+                v-model="formData.email"
+              />
+              <ul>
+                <li v-for="error in errors" :key="error">
+                  <span class="form-field__error">{{ error }}</span>
+                </li>
+              </ul>
+            </ValidationProvider>
           </div>
           <div class="form-field">
-            <label for="consent">Agree with terms and services</label>
-            <input type="checkbox" id="consent" v-model="formData.consent" />
-            <span class="form-field__error">error text</span>
+            <ValidationProvider rules="required" v-slot="{ errors }">
+              <input
+                type="checkbox"
+                id="consent"
+                required
+                v-model="formData.consent"
+              />
+              <label for="consent">Agree with terms and services</label>
+              <span class="form-field__error">{{ errors[0] }}</span>
+            </ValidationProvider>
           </div>
         </fieldset>
       </section>
@@ -55,12 +94,18 @@
 </template>
 
 <script>
+import { ValidationProvider, extend } from "vee-validate";
+//import { extend } from "vee-validate";
+import { required } from "vee-validate/dist/rules";
 import axios from "axios";
 const getUsersUrl = "https://api.github.com/users/";
-
+extend("required", {
+  ...required,
+  message: "This field is required"
+});
 export default {
   name: "MultistepForm",
-  components: {},
+  components: { ValidationProvider },
   props: {
     msg: String
   },
@@ -69,7 +114,7 @@ export default {
       formData: {
         firstName: "",
         lastName: "",
-        username: "ramonese",
+        username: "",
         email: "",
         consent: false,
         githubAvatar: ""
@@ -184,5 +229,16 @@ a {
 .slide-enter,
 .slide-leave-to {
   transform: translateX(0);
+}
+input:invalid {
+  border: 2px dashed red;
+}
+
+input:valid {
+  border: 2px solid black;
+}
+input:required + label:after {
+  content: "*";
+  color: red;
 }
 </style>
