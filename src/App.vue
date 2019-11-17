@@ -7,22 +7,26 @@
       </section>
     </div>
     <template v-if="isVisible">
-      <MultistepForm />
+      <MultistepForm @getUserData="showUserData" />
     </template>
+    <aside class="user-profile">
+      <UserProfile :user="userData" />
+    </aside>
   </div>
 </template>
 
 <script>
 import MultistepForm from "./components/MultistepForm.vue";
-
+import UserProfile from "./components/UserProfile.vue";
 export default {
   name: "app",
   components: {
-    MultistepForm
+    MultistepForm,
+    UserProfile
   },
   data: function() {
     return {
-      users: [],
+      userData: {},
       isVisible: true,
       isIntroVisible: true,
       loading: true,
@@ -33,6 +37,9 @@ export default {
   methods: {
     start() {
       (this.isIntroVisible = false), (this.isVisible = true);
+    },
+    showUserData(data) {
+      this.userData = data;
     }
   }
 };
@@ -54,7 +61,8 @@ export default {
   border: none;
   cursor: pointer;
 }
-.form__step {
+.form__step,
+.user-profile {
   border: 1px solid magenta;
   padding: 3em;
   max-width: 300px;

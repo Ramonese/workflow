@@ -4,7 +4,7 @@
     <form @submit.prevent="onSubmit">
       <section class="form__content" :id="currentStep">
         <transition name="slide">
-          <fieldset v-if="currentStep == 1">
+          <fieldset class="form__step" v-if="currentStep == 1">
             <div class="form-field">
               <label for="firstName">First Name</label>
               <input type="input" id="firstName" v-model="formData.firstName" />
@@ -22,7 +22,7 @@
             </div>
           </fieldset>
         </transition>
-        <fieldset v-if="currentStep == 2">
+        <fieldset class="form__step" v-if="currentStep == 2">
           <div class="form-field">
             <label for="email">Email</label>
             <input type="input" id="email" v-model="formData.email" />
@@ -35,7 +35,7 @@
           </div>
         </fieldset>
       </section>
-      {{ formData }}
+      <p>{{ formData }}</p>
       <div class="form__action">
         <button class="btn" data-cy="btn-back" @click="previousStep">
           Back
@@ -50,24 +50,17 @@
         </button>
       </div>
     </form>
-    <aside class="user-profile">
-      <ul v-for="data in formData" :key="data + 1">
-        <li>{{ data }}</li>
-      </ul>
-      <img :src="this.user.avatar_url" />
-    </aside>
+    <button @click="getUserGithub">get github</button>
   </section>
 </template>
 
 <script>
-//import FormStep from "./FormStep.vue";
 import axios from "axios";
-const getUsersUrl = "https://api.github.com/users/ramonese";
+const getUsersUrl = "https://api.github.com/users/";
+
 export default {
   name: "MultistepForm",
-  components: {
-    //FormStep
-  },
+  components: {},
   props: {
     msg: String
   },
@@ -76,8 +69,10 @@ export default {
       formData: {
         firstName: "",
         lastName: "",
-        username: "",
-        consent: false
+        username: "ramonese",
+        email: "",
+        consent: false,
+        githubAvatar: ""
       },
       user: "",
       isValid: false,
@@ -89,9 +84,9 @@ export default {
     };
   },
   methods: {
-    async getUsers() {
+    async getUserGithub() {
       try {
-        const response = await axios.get(getUsersUrl);
+        const response = await axios.get(getUsersUrl + this.formData.username);
         if (response.status === 200) {
           this.user = response.data;
           //this.loading = false;
@@ -116,19 +111,25 @@ export default {
         //   );
         // }
       }
+      if (this.currentStep == this.allSteps) {
+        this.$emit("getUserData", this.formData);
+      }
+
       //alert(this.currentStep);
     },
     test(input) {
       this.firstComplete = true;
       console.log(input);
     },
-    //Send request to github
     onSubmit() {
       this.isValid = true;
     }
   },
+  created() {
+    // this.getUsers();
+  },
   mounted() {
-    this.getUsers();
+    console.log(document.querySelectorAll(".form__step").length);
   }
 };
 </script>
