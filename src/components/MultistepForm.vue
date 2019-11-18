@@ -53,6 +53,12 @@
       {{ field.value }}
     </p>-->
     {{ this.formSteps.label}}
+    <aside v-if="isGithubError">
+      <p>{{githubErrorText}}</p>
+    </aside>
+    <aside v-if="loading">
+      <p>Loading...</p>
+    </aside>
   </section>
 </template>
 
@@ -60,6 +66,7 @@
 import { ValidationProvider, ValidationObserver, extend } from "vee-validate";
 import { required, email } from "vee-validate/dist/rules";
 import axios from "axios";
+//Github endpoint single user + username
 const getUsersUrl = "https://api.github.com/users/";
 extend("required", {
   ...required,
@@ -84,19 +91,14 @@ export default {
   },
   data: function() {
     return {
-      formData: {
-        firstName: "",
-        lastName: "",
-        username: "",
-        email: "",
-        consent: false,
-        githubAvatar: ""
-      },
+      githubUser: {},
+      githubUserAvatar: "",
       isVisible: true,
       close: false,
-      isValid: false,
       currentStep: 1, //start with 1 (used it in h1)
-
+      isGithubError: false,
+      githubErrorText: "Github username is not correct",
+      loading: false,
       formSteps: [
         [
           {
@@ -144,14 +146,16 @@ export default {
     async getUserGithub(username) {
       try {
         const response = await axios.get(getUsersUrl + username);
+        //this.loading = true;
         if (response.status === 200) {
-          this.user = response.data;
-          //this.loading = false;
+          this.githubUser = response.data;
+          this.githubUserAvatar = response.data.avatar_url;
+          this.loading = false;
+          console.log(this.githubUser);
         }
       } catch (error) {
-        // this.errorText = 'No user found'
-        // this.isError = true;
-        // this.loading = false;
+        this.isGithubError = true;
+        this.close = true;
       }
     },
     previousStep() {
@@ -192,13 +196,14 @@ export default {
       const username = user.username;
       console.log(username);
       this.getUserGithub(username);
-      // alert(this.getUserGithub());
+
+      alert(this.githubUserAvatar);
       this.close = true;
     }
   },
   computed: {
     activeStep() {
-      //
+      //add + 1 to corect this.currentStep = 1
       return this.formSteps[this.currentStep - 1];
     },
     isLastStep() {
@@ -207,9 +212,6 @@ export default {
     formStepCount() {
       return this.formSteps.length;
     }
-  },
-  mounted() {
-    // console.log(document.querySelectorAll(".form__step").length);
   }
 };
 </script>
