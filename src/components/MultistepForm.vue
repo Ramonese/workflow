@@ -9,7 +9,6 @@
           :name="field.id"
           :rules="field.validation"
           v-slot="{ errors }"
-          persist
           slim
         >
           <div class="form-field">
@@ -27,23 +26,7 @@
           <!-- <transition name="slide">
          
         </transition>
-        <fieldset class="form__step" v-if="currentStep == 2">
-          <div class="form-field">
-            <ValidationProvider rules="required|email" v-slot="{ errors }">
-              <label for="email">Email</label>
-              <input
-                type="email"
-                id="email"
-                required
-                v-model="formData.email"
-              />
-              <ul>
-                <li v-for="error in errors" :key="error">
-                  <span class="form-field__error">{{ error }}</span>
-                </li>
-              </ul>
-            </ValidationProvider>
-          </div>
+       
           <div class="form-field">
             <ValidationProvider rules="required" v-slot="{ errors }">
               <input
