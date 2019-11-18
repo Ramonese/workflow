@@ -1,18 +1,25 @@
 <template>
   <section>
-    <ValidationObserver v-slot="{ invalid, passes }" slim>
-      <h1>Step {{ currentStep }} from {{ allSteps }}</h1>
+    <ValidationObserver v-slot="{ invalid, passes }" slim novalidate>
+      <h1>Step {{ currentStep }} from {{ formStepCount }}</h1>
       <form @submit.prevent="passes(nextStep)">
         <ValidationProvider
           v-for="field in activeStep"
           :key="field.label"
           :name="field.id"
           :rules="field.validation"
-          v-slot="{ errors }"
+          v-slot="{ errors, classes}"
+          eager
           slim
         >
           <div class="form-field">
-            <input v-model="field.value" :type="field.type" :id="field.id" />
+            <input
+              v-model="field.value"
+              :type="field.type"
+              :id="field.id"
+              :class="classes"
+              required="field.validation"
+            />
             <label :for="field.id">{{ field.label }}</label>
             <ul>
               <li v-for="error in errors" :key="error">
@@ -22,25 +29,7 @@
           </div>
         </ValidationProvider>
 
-        <section class="form__content" :id="currentStep">
-          <!-- <transition name="slide">
-         
-        </transition>
-       
-          <div class="form-field">
-            <ValidationProvider rules="required" v-slot="{ errors }">
-              <input
-                type="checkbox"
-                id="consent"
-                required
-                v-model="formData.consent"
-              />
-              <label for="consent">Agree with terms and services</label>
-              <span class="form-field__error">{{ errors[0] }}</span>
-            </ValidationProvider>
-          </div>
-          </fieldset>-->
-        </section>
+        <!-- <transition name="slide"> </transition>-->
 
         <div class="form__action">
           <button class="btn" data-cy="btn-back" @click.prevent="previousStep">Back</button>
@@ -55,14 +44,15 @@
     </ValidationObserver>
     <!-- <button @click="getUserGithub">get github</button> -->
     <code>this is all data: {{ formSteps }} This is current data: {{ activeStep }}</code>
-    <p v-for="field in formSteps" :key="field.label">
+    <!-- <p v-for="field in formSteps" :key="field.label">
       {{ field.label }}
       {{ field.value }}
-    </p>
+    </p>-->
     <p v-for="field in activeStep" :key="field.label">
       {{ field.label }}
       {{ field.value }}
     </p>
+    {{ this.formSteps.length}}
   </section>
 </template>
 
@@ -73,12 +63,19 @@ import axios from "axios";
 const getUsersUrl = "https://api.github.com/users/";
 extend("required", {
   ...required,
-  message: "This field is required"
+  message: "This is required a field"
 });
+
 extend("email", {
   ...email,
-  message: "Email should be valid"
+  message: "Email address is not correct"
 });
+//Custom validation for required checkbox (vee validate "false" is treated as valid)
+extend("checkboxRequired", {
+  validate: value => value == true,
+  message: "You have to agree with terms and services"
+});
+
 export default {
   name: "MultistepForm",
   components: { ValidationProvider, ValidationObserver },
@@ -95,15 +92,10 @@ export default {
         consent: false,
         githubAvatar: ""
       },
-      user: "",
       isVisible: true,
       close: false,
       isValid: false,
-      currentStep: 1,
-      allSteps: 2,
-      isDisabled: false,
-      firstComplete: false,
-      secondComplete: false,
+      currentStep: 1, //start with 1 (used it in h1)
 
       formSteps: [
         [
@@ -131,27 +123,27 @@ export default {
         ],
         [
           {
-            label: "Agree with terms and services",
-            id: "consent",
-            type: "checkbox",
+            label: "Email",
+            id: "email",
+            type: "email",
             validation: "required",
             value: ""
           },
           {
-            label: "Email",
-            id: "email",
-            type: "email",
-            validation: "required|email",
-            value: ""
+            label: "Agree with terms and services",
+            id: "consent",
+            type: "checkbox",
+            validation: "checkboxRequired",
+            value: false
           }
         ]
       ]
     };
   },
   methods: {
-    async getUserGithub() {
+    async getUserGithub(username) {
       try {
-        const response = await axios.get(getUsersUrl + this.formData.username);
+        const response = await axios.get(getUsersUrl + username);
         if (response.status === 200) {
           this.user = response.data;
           //this.loading = false;
@@ -173,7 +165,7 @@ export default {
     nextStep() {
       if (this.isLastStep) {
         this.$emit("getUserData", this.formData);
-        return this.onSubmit();
+        this.onSubmit();
       }
       //console.log(this.formData);
       this.currentStep = this.currentStep + 1;
@@ -183,20 +175,26 @@ export default {
       console.log(input);
     },
     onSubmit() {
-      this.isValid = true;
+      const username = "ramonese";
+      this.getUserGithub(username);
+      alert(this.getUserGithub());
       this.close = true;
     }
   },
   computed: {
     activeStep() {
+      //
       return this.formSteps[this.currentStep - 1];
     },
     isLastStep() {
       return this.currentStep === this.formSteps.length;
+    },
+    formStepCount() {
+      return this.formSteps.length;
     }
   },
   mounted() {
-    console.log(document.querySelectorAll(".form__step").length);
+    // console.log(document.querySelectorAll(".form__step").length);
   }
 };
 </script>
@@ -251,13 +249,14 @@ a {
 .slide-leave-to {
   transform: translateX(0);
 }
-input:invalid {
-  border: 2px dashed red;
+input.invalid {
+  border: 2px solid brown;
 }
 
 input:valid {
   border: 2px solid black;
 }
+
 input:required + label:after {
   content: "*";
   color: red;
