@@ -10,7 +10,7 @@
       <MultistepForm @sendUserData="showUserData" />
     </template>
     <aside v-if="showUserProfile" class="user-profile">
-      <UserProfile :user="userData" />
+      <UserProfile :user="userData" :avatar="userData.avatar" />
     </aside>
   </div>
 </template>
@@ -39,9 +39,10 @@ export default {
     start() {
       (this.isIntroVisible = false), (this.isVisible = true);
     },
-    showUserData(data, avatar) {
+    showUserData(data) {
       this.userData = data;
-      this.showUserData = true;
+      alert(this.userData);
+      this.showUserProfile = true;
     }
   }
 };

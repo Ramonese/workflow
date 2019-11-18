@@ -42,17 +42,7 @@
         </div>
       </form>
     </ValidationObserver>
-    <!-- <button @click="getUserGithub">get github</button> -->
-    <!-- <code>this is all data: {{ formSteps }} This is current data: {{ activeStep }}</code> -->
-    <!-- <p v-for="field in formSteps" :key="field.label">
-      {{ field.label }}
-      {{ field.value }}
-    </p>-->
-    <!-- <p v-for="field in activeStep" :key="field.label">
-      {{ field.label }}
-      {{ field.value }}
-    </p>-->
-    {{ this.formSteps.label}}
+    <button @click="getUserGithub">get github</button>
     <aside v-if="isGithubError">
       <p>{{githubErrorText}}</p>
     </aside>
@@ -66,11 +56,9 @@
 import { ValidationProvider, ValidationObserver, extend } from "vee-validate";
 import { required, email } from "vee-validate/dist/rules";
 import axios from "axios";
-//Github endpoint single user + username
-const getUsersUrl = "https://api.github.com/users/";
 extend("required", {
   ...required,
-  message: "This is required a field"
+  message: "This is a required field"
 });
 
 extend("email", {
@@ -82,7 +70,8 @@ extend("checkboxRequired", {
   validate: value => value == true,
   message: "You have to agree with terms and services"
 });
-
+//Github endpoint single user + username
+const getUsersUrl = "https://api.github.com/users/";
 export default {
   name: "MultistepForm",
   components: { ValidationProvider, ValidationObserver },
@@ -96,7 +85,7 @@ export default {
       githubUserAvatar: "",
       isVisible: true,
       close: false,
-      currentStep: 1, //start with 1 (used it in h1)
+      currentStep: 1, //start with 1 (used in h1)
       isGithubError: false,
       githubErrorText: "Github username is not correct",
       loading: false,
@@ -145,11 +134,18 @@ export default {
   },
   methods: {
     async getUserGithub(username) {
+      //username = "ramonese";
+      /*
+			[1]:emit data to parent from here, to be sure user is fetched before form submit on slow connection 
+			*/
       try {
         const response = await axios.get(getUsersUrl + username);
         if (response.status === 200) {
           this.loading = false;
-          return (this.githubUserAvatar = response.data.avatar_url);
+          console.log(response.data);
+          this.githubUserAvatar = response.data.avatar_url;
+          this.sendData(); //[1]
+          this.close = true;
         }
       } catch (error) {
         this.loading = false;
@@ -170,19 +166,22 @@ export default {
         this.loading = true;
         this.formatUserInput();
         this.getUserGithub(this.githubUser);
-        this.onSubmit();
       }
       this.currentStep = this.currentStep + 1;
     },
+    /*
+			[1]: create array from user submited data;
+			[2]: push array values into one object: {label: value}
+			*/
     formatUserInput() {
       let data = [];
-      //create array from user submited data
+      //[1]
       this.formSteps.forEach(el => {
         el.forEach(value => {
           data.push({ name: value.id, value: value.value });
         });
       });
-      //push array values into one object: {label: value}
+      //[2]
       this.userData = Object.assign(
         {},
         ...data.map(item => ({ [item.name]: item.value }))
@@ -190,21 +189,24 @@ export default {
       console.log(this.userData);
       return (this.githubUser = this.userData.username);
     },
-    getGithubUser() {
-      this.getUserGithub(this.githubUser);
-    },
-    onSubmit() {
-      if (this.githubUserAvatar.length) {
-        alert(this.githubUserAvatar);
-        this.close = true;
-      }
-      //emit form data and github avatar to parent component
-      this.$emit("sendUserData", this.userData, this.githubUserAvatar);
+    /*
+			[1]: add avatar to user object;
+			[2]: push array values into one object: {label: value}
+			*/
+    sendData() {
+      console.log(this.githubUserAvatar);
+      //[1]
+      this.userData.avatar = this.githubUserAvatar;
+      console.log("%%%%%%%%%%%%%%%%%%%%%%", this.userData);
+      this.$emit("sendUserData", this.userData);
     }
   },
   computed: {
+    /*
+			[1]: add + 1 to corect this.currentStep = 1
+			*/
     activeStep() {
-      //add + 1 to corect this.currentStep = 1
+      //[1]
       return this.formSteps[this.currentStep - 1];
     },
     isLastStep() {

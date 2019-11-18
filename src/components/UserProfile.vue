@@ -1,10 +1,14 @@
 <template>
   <section>
     <ul>
-      <li><img :src="avatar" class="user-avatar" /></li>
-      <li v-for="data in user" :key="data + 1">
-        {{ data }}
+      <li v-if="user.avatar">
+        <figure>
+          <img :src="user.avatar" :alt="user.username" />
+        </figure>
+        <figcaption>Github username: {{user.username}}</figcaption>
       </li>
+      <li>{{user.firstName}} {{user.lastName}}</li>
+      <li>{{user.email}}</li>
     </ul>
   </section>
 </template>
@@ -12,7 +16,7 @@
 <script>
 export default {
   name: "UserProfile",
-  props: ["user", "avatar"]
+  props: ["user"]
 };
 </script>
 
