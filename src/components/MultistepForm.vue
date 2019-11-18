@@ -43,16 +43,16 @@
       </form>
     </ValidationObserver>
     <!-- <button @click="getUserGithub">get github</button> -->
-    <code>this is all data: {{ formSteps }} This is current data: {{ activeStep }}</code>
+    <!-- <code>this is all data: {{ formSteps }} This is current data: {{ activeStep }}</code> -->
     <!-- <p v-for="field in formSteps" :key="field.label">
       {{ field.label }}
       {{ field.value }}
     </p>-->
-    <p v-for="field in activeStep" :key="field.label">
+    <!-- <p v-for="field in activeStep" :key="field.label">
       {{ field.label }}
       {{ field.value }}
-    </p>
-    {{ this.formSteps.length}}
+    </p>-->
+    {{ this.formSteps.label}}
   </section>
 </template>
 
@@ -175,9 +175,24 @@ export default {
       console.log(input);
     },
     onSubmit() {
-      const username = "ramonese";
+      let data = [];
+      //create array from user submited data
+      this.formSteps.forEach(el => {
+        el.forEach(value => {
+          data.push({ name: value.id, value: value.value });
+        });
+      });
+      //push array values into one object: {label: value}
+      let user = Object.assign(
+        {},
+        ...data.map(item => ({ [item.name]: item.value }))
+      );
+      console.log(user);
+      //send to github
+      const username = user.username;
+      console.log(username);
       this.getUserGithub(username);
-      alert(this.getUserGithub());
+      // alert(this.getUserGithub());
       this.close = true;
     }
   },
