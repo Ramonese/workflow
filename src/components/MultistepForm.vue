@@ -91,7 +91,8 @@ export default {
   },
   data: function() {
     return {
-      githubUser: {},
+      userData: {},
+      githubUsername: "",
       githubUserAvatar: "",
       isVisible: true,
       close: false,
@@ -146,14 +147,12 @@ export default {
     async getUserGithub(username) {
       try {
         const response = await axios.get(getUsersUrl + username);
-        //this.loading = true;
         if (response.status === 200) {
-          this.githubUser = response.data;
-          this.githubUserAvatar = response.data.avatar_url;
           this.loading = false;
-          console.log(this.githubUser);
+          return (this.githubUserAvatar = response.data.avatar_url);
         }
       } catch (error) {
+        this.loading = false;
         this.isGithubError = true;
         this.close = true;
       }
@@ -168,17 +167,14 @@ export default {
     },
     nextStep() {
       if (this.isLastStep) {
-        this.$emit("getUserData", this.formData);
+        this.loading = true;
+        this.formatUserInput();
+        this.getUserGithub(this.githubUser);
         this.onSubmit();
       }
-      //console.log(this.formData);
       this.currentStep = this.currentStep + 1;
     },
-    test(input) {
-      this.firstComplete = true;
-      console.log(input);
-    },
-    onSubmit() {
+    formatUserInput() {
       let data = [];
       //create array from user submited data
       this.formSteps.forEach(el => {
@@ -187,18 +183,23 @@ export default {
         });
       });
       //push array values into one object: {label: value}
-      let user = Object.assign(
+      this.userData = Object.assign(
         {},
         ...data.map(item => ({ [item.name]: item.value }))
       );
-      console.log(user);
-      //send to github
-      const username = user.username;
-      console.log(username);
-      this.getUserGithub(username);
-
-      alert(this.githubUserAvatar);
-      this.close = true;
+      console.log(this.userData);
+      return (this.githubUser = this.userData.username);
+    },
+    getGithubUser() {
+      this.getUserGithub(this.githubUser);
+    },
+    onSubmit() {
+      if (this.githubUserAvatar.length) {
+        alert(this.githubUserAvatar);
+        this.close = true;
+      }
+      //emit form data and github avatar to parent component
+      this.$emit("sendUserData", this.userData, this.githubUserAvatar);
     }
   },
   computed: {

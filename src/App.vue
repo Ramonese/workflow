@@ -7,9 +7,9 @@
       </section>
     </div>
     <template v-if="isVisible">
-      <MultistepForm @getUserData="showUserData" />
+      <MultistepForm @sendUserData="showUserData" />
     </template>
-    <aside class="user-profile">
+    <aside v-if="showUserProfile" class="user-profile">
       <UserProfile :user="userData" />
     </aside>
   </div>
@@ -28,6 +28,7 @@ export default {
     return {
       userData: {},
       isVisible: true,
+      showUserProfile: false,
       isIntroVisible: true,
       loading: true,
       isError: false,
@@ -38,8 +39,9 @@ export default {
     start() {
       (this.isIntroVisible = false), (this.isVisible = true);
     },
-    showUserData(data) {
+    showUserData(data, avatar) {
       this.userData = data;
+      this.showUserData = true;
     }
   }
 };
