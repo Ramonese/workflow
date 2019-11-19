@@ -1,54 +1,56 @@
 <template>
   <section>
-    <ValidationObserver v-slot="{ invalid, passes }" slim novalidate>
-      <h1>Step {{ currentStep }} from {{ formStepCount }}</h1>
-      <form @submit.prevent="passes(nextStep)">
-        <ValidationProvider
-          v-for="field in activeStep"
-          :key="field.label"
-          :name="field.id"
-          :rules="field.validation"
-          v-slot="{ errors, classes}"
-          eager
-          slim
-        >
-          <div class="form-field">
-            <input
-              v-model="field.value"
-              :type="field.type"
-              :id="field.id"
-              :class="classes"
-              required="field.validation"
-            />
-            <label :for="field.id">{{ field.label }}</label>
-            <ul>
-              <li v-for="error in errors" :key="error">
-                <span class="form-field__error">{{ error }}</span>
-              </li>
-            </ul>
+    <h1>Step {{ currentStep }} from {{ formStepCount }}</h1>
+    <div class="l-column">
+      <ValidationObserver v-slot="{ invalid, passes }" slim novalidate>
+        <form @submit.prevent="passes(nextStep)">
+          <div class="l-transition">
+            <ValidationProvider
+              v-for="field in activeStep"
+              :key="field.label"
+              :name="field.id"
+              :rules="field.validation"
+              v-slot="{ errors, classes}"
+              eager
+              slim
+            >
+              <div class="form-field">
+                <input
+                  v-model="field.value"
+                  :type="field.type"
+                  :id="field.id"
+                  :class="classes"
+                  required="field.validation"
+                />
+                <label :for="field.id">{{ field.label }}</label>
+                <ul class="l-error-list">
+                  <li v-for="error in errors" :key="error">
+                    <span class="form-field__error">{{ error }}</span>
+                  </li>
+                </ul>
+              </div>
+            </ValidationProvider>
           </div>
-        </ValidationProvider>
 
-        <!-- <transition name="slide"> </transition>-->
-
-        <div class="form__action">
-          <button class="btn" data-cy="btn-back" @click.prevent="previousStep">Back</button>
-          <button
-            class="btn"
-            @click="nextStep"
-            :disabled="invalid"
-            data-cy="btn-next"
-          >{{ isLastStep ? "Submit" : "Next" }}</button>
-        </div>
-      </form>
-    </ValidationObserver>
-    <button @click="getUserGithub">get github</button>
-    <aside v-if="isGithubError">
-      <p>{{githubErrorText}}</p>
-    </aside>
-    <aside v-if="loading">
-      <p>Loading...</p>
-    </aside>
+          <div class="form__action">
+            <button class="btn" data-cy="btn-back" @click.prevent="previousStep">Back</button>
+            <button
+              class="btn"
+              @click="nextStep"
+              :disabled="invalid"
+              data-cy="btn-next"
+            >{{ isLastStep ? "Submit" : "Next" }}</button>
+          </div>
+        </form>
+      </ValidationObserver>
+      <button @click="getUserGithub">get github</button>
+      <aside v-if="isGithubError">
+        <p>{{githubErrorText}}</p>
+      </aside>
+      <aside v-if="loading">
+        <p>Loading...</p>
+      </aside>
+    </div>
   </section>
 </template>
 
@@ -81,6 +83,7 @@ export default {
   data: function() {
     return {
       userData: {},
+      transition: true,
       githubUsername: "",
       githubUserAvatar: "",
       isVisible: true,
@@ -145,21 +148,21 @@ export default {
           console.log(response.data);
           this.githubUserAvatar = response.data.avatar_url;
           this.sendData(); //[1]
-          this.close = true;
+          this.$emit("closeForm", this.close);
         }
       } catch (error) {
         this.loading = false;
         this.isGithubError = true;
-        this.close = true;
+        this.$emit("closeForm", this.close);
       }
     },
     previousStep() {
       this.currentStep = this.currentStep - 1;
+      this.transition = !this.transition;
       if (this.currentStep < 1) {
         this.close = true;
-        return;
+        this.$emit("closeForm", this.close);
       }
-      console.log(this.currentStep);
     },
     nextStep() {
       if (this.isLastStep) {
@@ -168,6 +171,7 @@ export default {
         this.getUserGithub(this.githubUser);
       }
       this.currentStep = this.currentStep + 1;
+      this.transition = true;
     },
     /*
 			[1]: create array from user submited data;
@@ -219,20 +223,10 @@ export default {
 };
 </script>
 
-<style scoped>
-h3 {
-  margin: 40px 0 0;
-}
+<style>
 ul {
   list-style-type: none;
   padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
 }
 .form__content {
   border: 1px solid magenta;
@@ -240,18 +234,65 @@ a {
   margin: 2em;
 }
 .form-field {
-  margin-bottom: 1em;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.7em;
+}
+.form__action {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
 }
 .form-field label {
   display: block;
+  order: -1;
+  margin-bottom: 0.2em;
 }
 .form-field input {
-  display: inline-block;
+}
+.l-error-list,
+.l-error-list li {
+  margin: 0;
+  line-height: 1;
+}
+
+input {
+  background: white;
+  border: 2px solid var(--text);
+  display: block;
+}
+input[type="text"],
+input[type="email"] {
+  background: inherit;
+  padding: 0.5em 1em;
+  font-size: inherit;
+  font-family: inherit;
+}
+input:focus {
+  background: inherit;
+  border: 2px solid #e35183;
+}
+input.invalid {
+  border: 2px solid #e35183;
 }
 .form-field__error {
-  color: red;
+  color: #e35183;
+  color: var(--erorr);
 }
-/*Slide down result*/
+input:valid {
+  border: 2px solid var(--text);
+}
+button:disabled {
+  background: #9f9f9f;
+}
+input:required + label:after {
+  content: "*";
+}
+.l-error-list {
+  padding-top: 5px;
+  min-height: calc(24 / 16 * 1em);
+}
+/*Slide left*/
 .slide-enter-active {
   transition: all cubic-bezier(0, 1, 0.5, 1) 0.3s;
 }
@@ -268,17 +309,5 @@ a {
 .slide-enter,
 .slide-leave-to {
   transform: translateX(0);
-}
-input.invalid {
-  border: 2px solid brown;
-}
-
-input:valid {
-  border: 2px solid black;
-}
-
-input:required + label:after {
-  content: "*";
-  color: red;
 }
 </style>

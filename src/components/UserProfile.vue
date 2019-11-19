@@ -1,9 +1,10 @@
 <template>
   <section>
-    <ul>
-      <li v-if="user.avatar">
+    <h1>{{heading}}</h1>
+    <ul class="user-profile">
+      <li v-if="user.avatar" class="user-profile__image">
         <figure>
-          <img :src="user.avatar" :alt="user.username" />
+          <img :src="user.avatar" :alt="user.username" class="user-avatar" />
         </figure>
         <figcaption>Github username: {{user.username}}</figcaption>
       </li>
@@ -16,14 +17,30 @@
 <script>
 export default {
   name: "UserProfile",
-  props: ["user"]
+  props: ["user", "heading"]
 };
 </script>
 
 <style scoped>
+figure {
+  margin: 0;
+}
+figcaption {
+  font-size: 90%;
+}
 .user-avatar {
-  max-width: 200px;
+  display: block;
+  max-width: 10em;
   width: 100%;
   height: auto;
 }
+/* .user-profile {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  grid-column-gap: 1rem;
+}
+.user-profile__image {
+  grid-row: 1/-1;
+} */
 </style>
