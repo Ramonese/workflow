@@ -11,13 +11,25 @@
       <li>{{user.firstName}} {{user.lastName}}</li>
       <li>{{user.email}}</li>
     </ul>
+    <button class="btn" @click="close">Close</button>
   </section>
 </template>
 
 <script>
 export default {
   name: "UserProfile",
-  props: ["user", "heading"]
+  props: ["user", "heading"],
+  data: function() {
+    return {
+      isVisible: true
+    };
+  },
+  methods: {
+    close() {
+      this.isVisible = false;
+      this.$emit("close", this.isVisible);
+    }
+  }
 };
 </script>
 

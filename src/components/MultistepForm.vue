@@ -3,7 +3,7 @@
     <h1>Step {{ currentStep }} from {{ formStepCount }}</h1>
     <div class="l-column">
       <ValidationObserver v-slot="{ invalid, passes }" slim novalidate>
-        <form @submit.prevent="passes(nextStep)">
+        <form @submit.prevent="passes(nextStep)" :class="{'hide':hideForm}">
           <div class="l-transition">
             <ValidationProvider
               v-for="field in activeStep"
@@ -84,10 +84,9 @@ export default {
     return {
       userData: {},
       transition: true,
-      githubUsername: "",
       githubUserAvatar: "",
-      isVisible: true,
       close: false,
+      hideForm: false,
       currentStep: 1, //start with 1 (used in h1)
       isGithubError: false,
       githubErrorText: "Github username is not correct",
@@ -148,12 +147,12 @@ export default {
           console.log(response.data);
           this.githubUserAvatar = response.data.avatar_url;
           this.sendData(); //[1]
-          this.$emit("closeForm", this.close);
+          this.$emit("closeForm");
         }
       } catch (error) {
         this.loading = false;
         this.isGithubError = true;
-        this.$emit("closeForm", this.close);
+        this.$emit("closeForm");
       }
     },
     previousStep() {
@@ -161,11 +160,12 @@ export default {
       this.transition = !this.transition;
       if (this.currentStep < 1) {
         this.close = true;
-        this.$emit("closeForm", this.close);
+        this.$emit("closeForm");
       }
     },
     nextStep() {
       if (this.isLastStep) {
+        this.hideForm = true;
         this.loading = true;
         this.formatUserInput();
         this.getUserGithub(this.githubUser);
@@ -198,10 +198,8 @@ export default {
 			[2]: push array values into one object: {label: value}
 			*/
     sendData() {
-      console.log(this.githubUserAvatar);
       //[1]
       this.userData.avatar = this.githubUserAvatar;
-      console.log("%%%%%%%%%%%%%%%%%%%%%%", this.userData);
       this.$emit("sendUserData", this.userData);
     }
   },
@@ -224,6 +222,9 @@ export default {
 </script>
 
 <style>
+.hide {
+  display: none;
+}
 ul {
   list-style-type: none;
   padding: 0;

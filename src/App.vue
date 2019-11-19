@@ -1,22 +1,21 @@
 <template>
   <div id="app">
     <div class="l-site-wrapper">
-      <transition name="fade">
+      <transition name="fade" mode="out-in">
         <section class="l-column center" v-if="isIntroVisible">
           <h1>Fill user information</h1>
           <p class="step__text">Start to fill out user information</p>
           <button class="btn" @click="start">Start</button>
-        </section>
-        <v-else>
-          <template v-if="isFormVisible">
-            <MultistepForm @sendUserData="showUserData" @closeForm="closeForm" />
-          </template>
-        </v-else>
+        </section><v-if="isFormVisible">
+        <template>
+          <MultistepForm @sendUserData="showUserData" @closeForm="closeForm" />
+        </template>
       </transition>
-      <transition name="fade"></transition>
-      <aside v-if="showUserProfile" class="l-user-profile">
-        <UserProfile :user="userData" :avatar="userData.avatar" heading="Your information" />
-      </aside>
+      <transition name="fade">
+        <aside v-if="showUserProfile" class="l-user-profile">
+          <UserProfile :user="userData" @close="closeProfile" heading="Your information" />
+        </aside>
+      </transition>
     </div>
   </div>
 </template>
@@ -33,25 +32,28 @@ export default {
   data: function() {
     return {
       userData: {},
-      isFormVisible: false,
       showUserProfile: false,
       isIntroVisible: true,
-      loading: true,
-      isError: false,
-      errorText: "No user found with this phone number"
+      isFormVisible: false
     };
   },
   methods: {
     start() {
       this.isIntroVisible = false;
+      this.isFormVisible = true;
+      this.showUserProfile = false;
     },
     showUserData(data) {
       this.userData = data;
       this.showUserProfile = true;
-    },
-    closeForm(status) {
       this.isFormVisible = false;
+    },
+    closeForm() {
       this.isIntroVisible = true;
+      this.isFormVisible = false;
+    },
+    closeProfile() {
+      this.showUserProfile = false;
     }
   }
 };
@@ -129,29 +131,12 @@ h1 {
   border: 1px solid grey;
   margin: 0 auto;
 }
-/* Slide left
-.slide-enter-active {
-  transition: all cubic-bezier(0, 1, 0.5, 1) 0.3s;
-}
 
-.slide-leave-active {
-  transition: all cubic-bezier(0, 1, 0.5, 1) 0.3s;
-}
-
-.slide-enter-to,
-.slide-leave {
-  transform: translateX(100%);
-}
-
-.slide-enter,
-.slide-leave-to {
-  transform: translateX(0);
-} */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.25s ease-out;
 }
-
+/*start*/
 .fade-enter,
 .fade-leave-to {
   opacity: 0;
