@@ -1,6 +1,6 @@
 <template>
   <section>
-    <h1>{{heading}}</h1>
+    <h2>{{heading}}</h2>
     <ul class="user-profile">
       <li v-if="user.avatar" class="user-profile__image">
         <figure>
@@ -46,13 +46,4 @@ figcaption {
   width: 100%;
   height: auto;
 }
-/* .user-profile {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-rows: auto auto;
-  grid-column-gap: 1rem;
-}
-.user-profile__image {
-  grid-row: 1/-1;
-} */
 </style>

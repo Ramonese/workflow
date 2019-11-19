@@ -4,34 +4,31 @@
     <div class="l-column">
       <ValidationObserver v-slot="{ invalid, passes }" slim novalidate>
         <form @submit.prevent="passes(nextStep)" :class="{'hide':hideForm}">
-          <div class="l-transition">
-            <ValidationProvider
-              v-for="field in activeStep"
-              :key="field.label"
-              :name="field.id"
-              :rules="field.validation"
-              v-slot="{ errors, classes}"
-              eager
-              slim
-            >
-              <div class="form-field">
-                <input
-                  v-model="field.value"
-                  :type="field.type"
-                  :id="field.id"
-                  :class="classes"
-                  required="field.validation"
-                />
-                <label :for="field.id">{{ field.label }}</label>
-                <ul class="l-error-list">
-                  <li v-for="error in errors" :key="error">
-                    <span class="form-field__error">{{ error }}</span>
-                  </li>
-                </ul>
-              </div>
-            </ValidationProvider>
-          </div>
-
+          <ValidationProvider
+            v-for="field in activeStep"
+            :key="field.label"
+            :name="field.id"
+            :rules="field.validation"
+            v-slot="{ errors, classes}"
+            eager
+            slim
+          >
+            <div class="form-field">
+              <input
+                v-model="field.value"
+                :type="field.type"
+                :id="field.id"
+                :class="classes"
+                required="field.validation"
+              />
+              <label :for="field.id">{{ field.label }}</label>
+              <ul class="l-error-list">
+                <li v-for="error in errors" :key="error">
+                  <span class="form-field__error">{{ error }}</span>
+                </li>
+              </ul>
+            </div>
+          </ValidationProvider>
           <div class="form__action">
             <button class="btn" data-cy="btn-back" @click.prevent="previousStep">Back</button>
             <button
@@ -43,7 +40,6 @@
           </div>
         </form>
       </ValidationObserver>
-      <button @click="getUserGithub">get github</button>
       <aside v-if="isGithubError">
         <p>{{githubErrorText}}</p>
       </aside>
@@ -77,15 +73,10 @@ const getUsersUrl = "https://api.github.com/users/";
 export default {
   name: "MultistepForm",
   components: { ValidationProvider, ValidationObserver },
-  props: {
-    msg: String
-  },
   data: function() {
     return {
       userData: {},
-      transition: true,
       githubUserAvatar: "",
-      close: false,
       hideForm: false,
       currentStep: 1, //start with 1 (used in h1)
       isGithubError: false,
@@ -135,11 +126,10 @@ export default {
     };
   },
   methods: {
-    async getUserGithub(username) {
-      //username = "ramonese";
-      /*
+    /*
 			[1]:emit data to parent from here, to be sure user is fetched before form submit on slow connection 
 			*/
+    async getUserGithub(username) {
       try {
         const response = await axios.get(getUsersUrl + username);
         if (response.status === 200) {
@@ -159,7 +149,6 @@ export default {
       this.currentStep = this.currentStep - 1;
       this.transition = !this.transition;
       if (this.currentStep < 1) {
-        this.close = true;
         this.$emit("closeForm");
       }
     },
@@ -195,7 +184,6 @@ export default {
     },
     /*
 			[1]: add avatar to user object;
-			[2]: push array values into one object: {label: value}
 			*/
     sendData() {
       //[1]
@@ -229,11 +217,7 @@ ul {
   list-style-type: none;
   padding: 0;
 }
-.form__content {
-  border: 1px solid magenta;
-  padding: 3em;
-  margin: 2em;
-}
+
 .form-field {
   display: flex;
   flex-direction: column;
@@ -244,13 +228,18 @@ ul {
   flex-flow: row wrap;
   justify-content: space-between;
 }
+.btn:first-child {
+  margin-right: 1em;
+}
+.btn {
+  margin-bottom: 1em;
+}
 .form-field label {
   display: block;
   order: -1;
   margin-bottom: 0.2em;
 }
-.form-field input {
-}
+
 .l-error-list,
 .l-error-list li {
   margin: 0;
@@ -260,14 +249,20 @@ ul {
 input {
   background: white;
   border: 2px solid var(--text);
-  display: block;
 }
 input[type="text"],
 input[type="email"] {
+  display: block;
   background: inherit;
   padding: 0.5em 1em;
   font-size: inherit;
   font-family: inherit;
+}
+input[type="checkbox"] {
+  padding: 1em;
+  display: inline-flex;
+  max-width: 20px;
+  max-width: min-content;
 }
 input:focus {
   background: inherit;
@@ -292,23 +287,5 @@ input:required + label:after {
 .l-error-list {
   padding-top: 5px;
   min-height: calc(24 / 16 * 1em);
-}
-/*Slide left*/
-.slide-enter-active {
-  transition: all cubic-bezier(0, 1, 0.5, 1) 0.3s;
-}
-
-.slide-leave-active {
-  transition: all cubic-bezier(0, 1, 0.5, 1) 0.3s;
-}
-
-.slide-enter-to,
-.slide-leave {
-  transform: translateX(100%);
-}
-
-.slide-enter,
-.slide-leave-to {
-  transform: translateX(0);
 }
 </style>
