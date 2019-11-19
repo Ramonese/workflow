@@ -1,6 +1,6 @@
 <template>
   <section>
-    <h1>Step {{ currentStep }} from {{ formStepCount }}</h1>
+    <h1 v-if="!hideForm">Step {{ currentStep }} from {{ formStepCount }}</h1>
     <div class="l-column">
       <ValidationObserver v-slot="{ invalid, passes }" slim novalidate>
         <form @submit.prevent="passes(nextStep)" :class="{'hide':hideForm}">

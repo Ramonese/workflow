@@ -11,7 +11,7 @@
           <div v-if="isFormVisible">
             <MultistepForm @sendUserData="showUserData" @closeForm="showIntro" />
           </div>
-          <aside v-if="isUserProfileVisible" class="l-user-profile">
+          <aside v-if="isUserProfileVisible" class="l-user-profile l-column">
             <UserProfile :user="userData" @close="closeProfile" heading="Your information" />
           </aside>
         </div>
@@ -120,7 +120,9 @@ h2 {
   max-width: 20em;
   margin: 0 auto;
 }
-
+.l-user-profile {
+  margin-top: 3em;
+}
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.25s ease-out;
