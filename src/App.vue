@@ -5,7 +5,7 @@
         <div>
           <section class="l-column center" v-if="isIntroVisible">
             <h1>Fill user information</h1>
-            <p class="step__text">Start to fill out user information</p>
+            <p>Start to fill out user information</p>
             <button class="btn" @click="start">Start</button>
           </section>
           <div v-if="isFormVisible">
@@ -115,12 +115,6 @@ h2 {
 .btn:not(:disabled):hover,
 .btn:focus {
   background: #e35183;
-}
-.form__step,
-.l-user-profile {
-  padding: 3em;
-  max-width: 300px;
-  margin: 0 auto;
 }
 .l-column {
   max-width: 20em;

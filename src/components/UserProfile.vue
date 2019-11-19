@@ -19,25 +19,19 @@
 export default {
   name: "UserProfile",
   props: ["user", "heading"],
-  data: function() {
-    return {
-      isVisible: true
-    };
-  },
   methods: {
     close() {
-      this.isVisible = false;
-      this.$emit("close", this.isVisible);
+      this.$emit("close");
     }
   }
 };
 </script>
 
-<style scoped>
-figure {
+<style>
+.user-profile__image figure {
   margin: 0;
 }
-figcaption {
+.user-profile__image figcaption {
   font-size: 90%;
 }
 .user-avatar {

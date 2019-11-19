@@ -134,7 +134,6 @@ export default {
         const response = await axios.get(getUsersUrl + username);
         if (response.status === 200) {
           this.loading = false;
-          console.log(response.data);
           this.githubUserAvatar = response.data.avatar_url;
           this.sendData(); //[1]
           this.$emit("closeForm");
@@ -179,7 +178,6 @@ export default {
         {},
         ...data.map(item => ({ [item.name]: item.value }))
       );
-      console.log(this.userData);
       return (this.githubUser = this.userData.username);
     },
     /*
