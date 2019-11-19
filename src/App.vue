@@ -3,16 +3,29 @@
     <div class="l-site-wrapper">
       <transition name="fade" mode="out-in">
         <div>
-          <section class="l-column center" v-if="isIntroVisible">
+          <section
+            class="l-column center"
+            data-cy="intro"
+            v-if="isIntroVisible"
+          >
             <h1>Fill user information</h1>
             <p>Start to fill out user information</p>
-            <button class="btn" @click="start">Start</button>
+            <button class="btn" @click="start" data-cy="btn-start">
+              Start
+            </button>
           </section>
           <div v-if="isFormVisible">
-            <MultistepForm @sendUserData="showUserData" @closeForm="showIntro" />
+            <MultistepForm
+              @sendUserData="showUserData"
+              @closeForm="showIntro"
+            />
           </div>
           <aside v-if="isUserProfileVisible" class="l-user-profile l-column">
-            <UserProfile :user="userData" @close="closeProfile" heading="Your information" />
+            <UserProfile
+              :user="userData"
+              @close="closeProfile"
+              heading="Your information"
+            />
           </aside>
         </div>
       </transition>
